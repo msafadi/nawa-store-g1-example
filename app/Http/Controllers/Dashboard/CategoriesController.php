@@ -7,6 +7,7 @@ use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
@@ -44,11 +45,11 @@ class CategoriesController extends Controller
     {
         $this->validateRequest($request);
 
-        // $category = new Category();
-        // $category->name = $request->post('name');
-        // $category->slug = $request->post('slug');
-        // $category->parent_id = $request->post('parent_id');
-        // $category->save();
+        $path = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image'); // Object UploadedFile
+            $path = $file->store('/uploads', 'public'); // store file in selected path!
+        }
 
         // Mass assignment
         $slug = $request->post('slug');
@@ -60,6 +61,7 @@ class CategoriesController extends Controller
             'name' => $request->post('name'),
             'slug' => $slug,
             'parent_id' => $request->post('parent_id'),
+            'image_path' => $path,
         ]);
 
         // PRG + Flash Message
@@ -85,18 +87,27 @@ class CategoriesController extends Controller
         $category = Category::findOrFail($id);
 
         //$data = $this->validateRequest($request, $id);
+
         $data = $request->validated();
+
+        $old = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $path = $file->store('/uploads', 'public');
+            $data['image_path'] = $path;
+            $old = $category->image_path;
+        }
+
         if (!$data['slug']) {
             $data['slug'] = Str::slug( $data['name'] );
         }
 
-        // $category->name = $request->post('name');
-        // $category->slug = $request->post('slug');
-        // $category->parent_id = $request->post('parent_id');
-        // $category->save();
-
         // Mass Assignment
         $category->update($data);
+        if ($old) {
+            // Delete old image
+            Storage::disk('public')->delete($old);
+        }
 
         return redirect()
             ->route('dashboard.categories.index')
@@ -105,7 +116,12 @@ class CategoriesController extends Controller
 
     public function destroy($id)
     {
-        Category::destroy($id);
+        //Category::destroy($id);
+        $category = Category::findOrFail($id);
+        $category->delete();
+        if ($category->image_path) {
+            Storage::disk('public')->delete($category->image_path);
+        }
 
         return redirect()
             ->route('dashboard.categories.index')
@@ -123,7 +139,7 @@ class CategoriesController extends Controller
                 'image',
                 'max:100',
                 //'dimensions:min_width=300,min_height=300,max_width=1200,max_height=1200',
-                Rule::dimensions()->minHeight(300)->maxHeight(1200)->minWidth(1200)->maxWidth(1200),
+                Rule::dimensions()->minHeight(300)->maxHeight(1200)->minWidth(300)->maxWidth(1200),
             ],
         ];
 

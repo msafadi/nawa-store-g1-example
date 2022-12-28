@@ -19,6 +19,7 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th></th>
                 <th>Name</th>
                 <th>Parent</th>
                 <th>Created At</th>
@@ -30,6 +31,9 @@
             @foreach($categories as $category)
             <tr>
                 <td>{{ $category->id }}</td>
+                <td>
+                    <img src="{{ $category->image_url }}" width="60" alt="">
+                </td>
                 <td><strong>{{ $category->name }}</strong>
                 <br><span class="text-muted">{{ $category->slug }}</span></td>
                 <td>{{ $category->parent_name }}</td>
