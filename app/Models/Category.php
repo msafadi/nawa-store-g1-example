@@ -4,17 +4,44 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Category extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'name', 'slug', 'parent_id', 'image_path',
     ];
 
     // protected $guarded = ['id'];
+
+    protected static function booted()
+    {
+        // Global Scopes
+        static::addGlobalScope('order', function($query) {
+            $query->orderBy('categories.name');
+        });
+        // static::addGlobalScope('parent', function($query) {
+        //     $query->whereNull('categories.parent_id');
+        // });
+    }
+
+    // Local Scopes
+    public function scopeNoParent($query)
+    {
+        $query->whereNull('categories.parent_id');
+    }
+
+    public function scopeSearch($query, $value)
+    {
+        if (!$value) {
+            return;
+        }
+        $query->where('categories.name', 'LIKE', "%{$value}%");
+    }
     
     // Accessors
     // $category->image_url

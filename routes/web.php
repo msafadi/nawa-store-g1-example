@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Dashboard\CategoriesController;
+use App\Http\Controllers\Dashboard\ProductsController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,16 +19,24 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/pages/{name}', [HomeController::class, 'show'])->name('pages');
 
-// Categories CRUD
+
 Route::group([
-    'prefix' => '/dashboard/categories',
-    'as' => 'dashboard.categories.',
-    'controller' => CategoriesController::class,
-], function() {
-    Route::get('/', 'index')->name('index');
-    Route::get('/create', 'create')->name('create');
-    Route::post('/', 'store')->name('store');
-    Route::get('/{category}/edit', 'edit')->name('edit');
-    Route::put('/{category}', 'update')->name('update');
-    Route::delete('/{category}', 'destroy')->name('destroy');
+    'prefix' => '/dashboard',
+    'as' => 'dashboard.'
+], function () {
+    Route::group([
+        'prefix' => '/categories',
+        'as' => 'categories.',
+        'controller' => CategoriesController::class,
+    ], function() {
+        Route::get('/trash', 'trash')->name('trash');
+        Route::patch('/{category}/restore', 'restore')->name('restore');
+        Route::delete('/{category}/force', 'forceDelete')->name('force-delete');
+    });
+
+    Route::resource('categories', CategoriesController::class)->except('show');
+    Route::resource('products', ProductsController::class)->names([
+        // 'index' => 'dashboard.products.index',
+        // 'edit' =>  'dashboard.products.edit',
+    ]);
 });

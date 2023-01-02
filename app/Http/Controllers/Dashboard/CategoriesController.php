@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class CategoriesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // SQL:
         // SELECT categories.*, parents.name as parent_name FROM categories
@@ -24,7 +24,11 @@ class CategoriesController extends Controller
                 'parents.name as parent_name',
             ])
             ->leftJoin('categories as parents', 'parents.id', '=', 'categories.parent_id')
+            //->noParent()
+            ->search($request->query('search'))
             ->get();
+
+        //dd($categories);
 
         return view('dashboard.categories.index', [
             'categories' => $categories,
@@ -119,9 +123,6 @@ class CategoriesController extends Controller
         //Category::destroy($id);
         $category = Category::findOrFail($id);
         $category->delete();
-        if ($category->image_path) {
-            Storage::disk('public')->delete($category->image_path);
-        }
 
         return redirect()
             ->route('dashboard.categories.index')
@@ -149,5 +150,34 @@ class CategoriesController extends Controller
         ];
 
         return $request->validate($rules, $messages);
+    }
+
+    public function trash()
+    {
+        $categories = Category::onlyTrashed()->get();
+        return view('dashboard.categories.trash', [
+            'categories' => $categories,
+        ]);
+    }
+
+    public function restore($id)
+    {
+        $category = Category::onlyTrashed()->findOrFail($id);
+        $category->restore();
+
+        return redirect()->route('dashboard.categories.index')
+            ->with('success', "Category {$category->name} restored!");
+    }
+
+    public function forceDelete($id)
+    {
+        $category = Category::onlyTrashed()->findOrFail($id);
+        $category->forceDelete();
+        if ($category->image_path) {
+            Storage::disk('public')->delete($category->image_path);
+        }
+
+        return redirect()->route('dashboard.categories.trash')
+            ->with('success', "Category {$category->name} deleted forever!");
     }
 }
