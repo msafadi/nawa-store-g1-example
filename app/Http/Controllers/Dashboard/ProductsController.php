@@ -16,7 +16,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        // with: Eager Loading
+        $products = Product::with('category')->get();
         return view('dashboard.products.index', [
             'products' => $products
         ]);
@@ -65,7 +66,13 @@ class ProductsController extends Controller
      */
     public function show($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        
+        $product->tags()->sync([3, 5, 1]);
+
+        foreach($product->tags as $tag) {
+            echo $tag->name . '<br>';
+        }
     }
 
     /**

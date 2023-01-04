@@ -43,7 +43,7 @@
                 </td>
                 <td><strong>{{ $product->name }}</strong>
                 <br><span class="text-muted">{{ $product->slug }}</span></td>
-                <td>{{ $product->category_name }}</td>
+                <td>{{ $product->category->name }}</td>
                 <td>{{ $product->created_at }}</td>
                 <td>
                     <a href="{{ route('dashboard.products.edit', $product->id) }}" class="btn btn-sm btn-outline-primary">Edit</a>

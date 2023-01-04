@@ -65,4 +65,22 @@ class Category extends Model
     {
         $this->attributes['name'] = strtoupper($value);
     }
+
+    // One-to-Many: One Category Has Many Products
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_id', 'id');
+    }
+
+    // One Category Has Many Child Categories
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id', 'id');
+    }
+
+    // One Category Belongs To One Parent Category
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id', 'id');
+    }
 }
