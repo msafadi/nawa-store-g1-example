@@ -84,6 +84,8 @@ return [
 
     'locale' => 'en',
 
+    'currency' => 'ILS',
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
@@ -210,6 +212,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'Money' => App\Helpers\Money::class,
     ])->toArray(),
 
 ];
