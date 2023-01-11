@@ -63,4 +63,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Order::class);
     }
+
+    public function routeNotificationForTwilio()
+    {
+        return $this->mobile;
+    }
+
+    public function routeNotificationForVonage()
+    {
+        return $this->mobile;
+    }
+
+    public function routeNotificationForMail()
+    {
+        return $this->email;
+    }
 }

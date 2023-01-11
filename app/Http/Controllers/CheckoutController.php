@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCreated;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Repositories\CartRepository;
@@ -53,12 +54,16 @@ class CheckoutController extends Controller
             
             DB::commit();
 
+            // Trigger event
+            event(new OrderCreated($order));
+
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
 
-        return redirect()
-            ->route('payments.redirect', $order->id);
+        return 'Order Created!';
+        // return redirect()
+        //     ->route('payments.redirect', $order->id);
     }
 }
