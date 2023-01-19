@@ -18,6 +18,14 @@ class Category extends Model
 
     // protected $guarded = ['id'];
 
+    protected $appends = [
+        'image_url', // getImageUrlAttribute()
+    ];
+
+    protected $hidden = [
+        'image_path', 'deleted_at', 'updated_at',
+    ];
+
     protected static function booted()
     {
         // Global Scopes

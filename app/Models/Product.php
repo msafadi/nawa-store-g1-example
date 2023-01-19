@@ -15,6 +15,14 @@ class Product extends Model
         'price', 'compare_price', 'featured', 'reviews_avg', 'reviews_count'
     ];
 
+    protected $appends = [
+        'image_url', // getImageUrlAttribute()
+    ];
+
+    protected $hidden = [
+        'image_path', 'deleted_at', 'updated_at',
+    ];
+
     public function scopeActive($query)
     {
         $query->where('status', '=', 'active');
